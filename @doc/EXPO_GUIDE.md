@@ -146,7 +146,8 @@ Expo provides many APIs out of the box. Examples:
 - `expo-camera` - Camera access
 - `expo-location` - GPS
 - `expo-speech` - Text-to-speech (useful for voice features!)
-- `expo-av` - Audio/video playback
+- `expo-audio` - Audio playback and recording
+- `expo-video` - Video playback
 
 Install with: `npx expo install expo-package-name`
 
@@ -155,7 +156,7 @@ Install with: `npx expo install expo-package-name`
 ### Voice Features
 For voice input (T1.2), you'll likely use:
 - `expo-speech` - For text-to-speech (Nori speaking)
-- `expo-av` - For audio recording (user speaking)
+- `expo-audio` - For audio recording (user speaking)
 - Or consider `@react-native-voice/voice` for speech-to-text
 
 ### Environment Variables

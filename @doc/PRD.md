@@ -40,6 +40,12 @@ Home cooks who want quick, low-friction recipe ideas and guidance.
 - Store profile, pantry, preferences, saved recipes.
 - Store raw transcripts only in staging/dev environments.
 
+## MVP Stack Decision
+- LLM: OpenAI (FR/EN support, strong tool calling).
+- STT: native iOS/Android speech APIs.
+- TTS: native iOS/Android TTS.
+- Rationale: minimal cost and fastest path to a working prototype; upgrade later if needed.
+
 ## Success Metrics
 - <5 seconds to first response after speech ends.
 - >60% sessions end with a recipe viewed or saved.

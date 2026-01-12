@@ -16,20 +16,36 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.souschef.nori"
+      "bundleIdentifier": "com.souschef.nori",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Nori needs access to your microphone to record your voice input for recipe suggestions."
+      },
+      "appleTeamId": "X7WNRVN3M3"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.souschef.nori"
+      "package": "com.souschef.nori",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "react-native-voicekit",
+        {
+          "speechRecognitionPermission": "Nori needs access to speech recognition to convert your voice to text.",
+          "microphonePermission": "Nori needs access to your microphone to record your voice input for recipe suggestions."
+        }
+      ],
+      "expo-audio"
     ],
     "scheme": "nori",
     "extra": {

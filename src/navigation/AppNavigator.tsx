@@ -2,7 +2,8 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import HomeScreen from '../screens/HomeScreen';
 import SavedRecipesScreen from '../screens/SavedRecipesScreen';
@@ -25,21 +26,62 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function MainTabs() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: Platform.select({
+          ios: {
+            // Native iOS translucent tab bar (liquid glass effect)
+            // iOS automatically applies blur when backgroundColor is transparent/semi-transparent
+            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+            borderTopWidth: 0,
+            position: 'absolute',
+            // Remove shadow for cleaner look
+            shadowColor: 'transparent',
+            elevation: 0,
+          },
+          android: {
+            elevation: 8,
+            backgroundColor: '#fff',
+          },
+        }),
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: '#8E8E93',
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+        },
+      }}
+    >
       <Tab.Screen 
         name="Ask" 
         component={HomeScreen}
-        options={{ title: 'Ask Nori' }}
+        options={{
+          title: 'Ask',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbubble-outline" size={size} color={color} />
+          ),
+        }}
       />
       <Tab.Screen 
         name="Saved" 
         component={SavedRecipesScreen}
-        options={{ title: 'Saved' }}
+        options={{
+          title: 'Saved',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="bookmark-outline" size={size} color={color} />
+          ),
+        }}
       />
       <Tab.Screen 
         name="Settings" 
         component={SettingsScreen}
-        options={{ title: 'Settings' }}
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="settings-outline" size={size} color={color} />
+          ),
+        }}
       />
     </Tab.Navigator>
   );

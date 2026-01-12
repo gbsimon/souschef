@@ -19,7 +19,7 @@ interface EnvConfig {
 
 const getEnvironment = (): Environment => {
   const env = Constants.expoConfig?.extra?.environment || 
-              __DEV__ ? 'development' : 'production';
+              (__DEV__ ? 'development' : 'production');
   if (env === 'production') return 'production';
   if (env === 'staging') return 'staging';
   return 'development';

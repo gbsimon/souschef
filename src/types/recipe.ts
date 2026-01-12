@@ -3,6 +3,8 @@
  * Defines the structure for recipes returned by Nori
  */
 
+import { DietaryPreference } from './user';
+
 export interface Recipe {
   id: string;
   title: string;
