@@ -15,6 +15,7 @@ interface EnvConfig {
   apiUrl: string;
   apiKey?: string;
   openaiApiKey?: string;
+  elevenLabsApiKey?: string;
   enableAnalytics: boolean;
 }
 
@@ -34,6 +35,7 @@ export const env: EnvConfig = {
   apiUrl: extra.apiUrl || 'http://localhost:3000',
   apiKey: extra.apiKey,
   openaiApiKey: extra.openaiApiKey || process.env.EXPO_PUBLIC_OPENAI_API_KEY,
+  elevenLabsApiKey: extra.elevenLabsApiKey || process.env.EXPO_PUBLIC_ELEVENLABS_API_KEY,
   enableAnalytics: extra.enableAnalytics === true || extra.enableAnalytics === 'true',
 };
 

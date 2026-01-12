@@ -184,16 +184,16 @@ Tasks:
 - ✅ No more than two follow-up questions per interaction.
 - ✅ Starch question is consistently asked.
 
-### T3.3 - Allergy filtering + preferences
+### T3.3 - Allergy filtering + preferences ✅ DONE
 
 Description: Enforce allergy filters and support preferences.
 Tasks:
 
-- Apply hard filter for allergy ingredients.
-- For preferences, suggest replacements in recipe steps.
+- ✅ Apply hard filter for allergy ingredients.
+- ✅ For preferences, suggest replacements in recipe steps.
   Acceptance:
-- Allergens are excluded from all recipes.
-- Preference-based substitutions are present where needed.
+- ✅ Allergens are excluded from all recipes.
+- ✅ Preference-based substitutions are present where needed.
 
 ## Epic 4 - Recipe Experience
 

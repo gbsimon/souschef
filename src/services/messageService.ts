@@ -88,14 +88,23 @@ export async function sendUserMessage(
       textLength: aiResponse.text.length,
       recipeCount: aiResponse.recipes?.length || 0,
       toolCalls: aiResponse.toolCalls?.length || 0,
+      isFollowUpQuestion: aiResponse.isFollowUpQuestion,
     });
+
+    // Only include recipes if they exist and have content (not during follow-up questions)
+    const recipesToInclude = aiResponse.recipes && 
+                             Array.isArray(aiResponse.recipes) && 
+                             aiResponse.recipes.length > 0 &&
+                             !aiResponse.isFollowUpQuestion
+      ? aiResponse.recipes
+      : undefined;
 
     return {
       success: true,
       messageId: userMessage.id,
       aiResponse: {
         text: aiResponse.text,
-        recipes: aiResponse.recipes,
+        recipes: recipesToInclude,
       },
     };
   } catch (error) {

@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../i18n/useTranslation';
 import HomeScreen from '../screens/HomeScreen';
 import SavedRecipesScreen from '../screens/SavedRecipesScreen';
 import SettingsScreen from '../screens/SettingsScreen';
@@ -25,6 +26,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function MainTabs() {
+  const { t } = useTranslation();
+  
   return (
     <Tab.Navigator
       screenOptions={{
@@ -57,7 +60,7 @@ function MainTabs() {
         name="Ask" 
         component={HomeScreen}
         options={{
-          title: 'Ask',
+          title: t.navigation.ask,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubble-outline" size={size} color={color} />
           ),
@@ -67,7 +70,7 @@ function MainTabs() {
         name="Saved" 
         component={SavedRecipesScreen}
         options={{
-          title: 'Saved',
+          title: t.navigation.saved,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="bookmark-outline" size={size} color={color} />
           ),
@@ -77,7 +80,7 @@ function MainTabs() {
         name="Settings" 
         component={SettingsScreen}
         options={{
-          title: 'Settings',
+          title: t.navigation.settings,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="settings-outline" size={size} color={color} />
           ),

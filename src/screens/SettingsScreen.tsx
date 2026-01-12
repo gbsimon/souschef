@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 /**
  * Settings Screen
@@ -8,21 +9,22 @@ import { useAuth } from '../contexts/AuthContext';
  */
 export default function SettingsScreen() {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     Alert.alert(
-      'Log Out',
-      'Are you sure you want to log out?',
+      t.settings.logOut,
+      t.settings.logOutConfirm,
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t.alerts.cancel, style: 'cancel' },
         {
-          text: 'Log Out',
+          text: t.settings.logOut,
           style: 'destructive',
           onPress: async () => {
             try {
               await logout();
             } catch (error) {
-              Alert.alert('Error', 'Failed to log out. Please try again.');
+              Alert.alert(t.alerts.error, t.settings.logOutError);
             }
           },
         },
@@ -33,25 +35,25 @@ export default function SettingsScreen() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account</Text>
+        <Text style={styles.sectionTitle}>{t.settings.account}</Text>
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Email</Text>
+          <Text style={styles.infoLabel}>{t.settings.email}</Text>
           <Text style={styles.infoValue}>{user?.email}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.infoLabel}>Locale</Text>
+          <Text style={styles.infoLabel}>{t.settings.locale}</Text>
           <Text style={styles.infoValue}>{user?.locale || 'en-US'}</Text>
         </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Settings</Text>
-        <Text style={styles.comingSoon}>Pantry, preferences, and appliances coming soon</Text>
+        <Text style={styles.sectionTitle}>{t.settings.settings}</Text>
+        <Text style={styles.comingSoon}>{t.settings.comingSoon}</Text>
       </View>
 
       <View style={styles.section}>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Log Out</Text>
+          <Text style={styles.logoutButtonText}>{t.settings.logOut}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

@@ -6,6 +6,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { LanguageCode } from '../hooks/useNativeSpeechRecognition';
+import { useTranslation } from '../i18n/useTranslation';
 
 interface LanguageSelectorProps {
   currentLanguage: LanguageCode;
@@ -20,6 +21,7 @@ export default function LanguageSelector({
   disabled = false,
   compact = false,
 }: LanguageSelectorProps) {
+  const { t } = useTranslation();
   if (compact) {
     return (
       <View style={styles.compactContainer}>
@@ -65,7 +67,7 @@ export default function LanguageSelector({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Language:</Text>
+      <Text style={styles.label}>{t.language.label}</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[
@@ -82,7 +84,7 @@ export default function LanguageSelector({
               currentLanguage === 'en-US' && styles.buttonTextActive,
             ]}
           >
-            English
+            {t.language.english}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -100,7 +102,7 @@ export default function LanguageSelector({
               currentLanguage === 'fr-FR' && styles.buttonTextActive,
             ]}
           >
-            Français
+            {t.language.french}
           </Text>
         </TouchableOpacity>
       </View>

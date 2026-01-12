@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityInd
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/AuthNavigator';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
@@ -11,15 +12,16 @@ export default function SignUpScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
+  const { t } = useTranslation();
 
   const handleSignUp = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert(t.alerts.error, t.auth.fillAllFields);
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      Alert.alert(t.alerts.error, t.auth.passwordTooShort);
       return;
     }
 
@@ -28,7 +30,7 @@ export default function SignUpScreen({ navigation }: Props) {
       await signUp({ email: email.trim(), password });
       // Navigation will be handled by AuthNavigator when auth state changes
     } catch (error) {
-      Alert.alert('Error', 'Failed to create account. Please try again.');
+      Alert.alert(t.alerts.error, t.auth.createAccountError);
       console.error('Sign up error:', error);
     } finally {
       setIsLoading(false);
@@ -37,13 +39,13 @@ export default function SignUpScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
-      <Text style={styles.subtitle}>Sign up to get started with Nori</Text>
+      <Text style={styles.title}>{t.auth.createAccount}</Text>
+      <Text style={styles.subtitle}>{t.auth.createAccountSubtitle}</Text>
 
       <View style={styles.form}>
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder={t.auth.emailPlaceholder}
           placeholderTextColor="#999"
           value={email}
           onChangeText={setEmail}
@@ -55,7 +57,7 @@ export default function SignUpScreen({ navigation }: Props) {
 
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder={t.auth.passwordPlaceholder}
           placeholderTextColor="#999"
           value={password}
           onChangeText={setPassword}
@@ -73,7 +75,7 @@ export default function SignUpScreen({ navigation }: Props) {
           {isLoading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Sign Up</Text>
+            <Text style={styles.buttonText}>{t.auth.signUp}</Text>
           )}
         </TouchableOpacity>
 
@@ -83,7 +85,7 @@ export default function SignUpScreen({ navigation }: Props) {
           disabled={isLoading}
         >
           <Text style={styles.linkText}>
-            Already have an account? Log in
+            {t.auth.haveAccount}
           </Text>
         </TouchableOpacity>
       </View>

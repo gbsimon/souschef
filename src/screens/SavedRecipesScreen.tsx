@@ -1,15 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from '../i18n/useTranslation';
 
 /**
  * Saved Recipes Screen
  * Placeholder for saved recipes list
  */
 export default function SavedRecipesScreen() {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Saved Recipes</Text>
-      <Text style={styles.subtitle}>Your saved recipes will appear here</Text>
+      <Text style={styles.title}>{t.savedRecipes.title}</Text>
+      <Text style={styles.subtitle}>{t.savedRecipes.subtitle}</Text>
     </View>
   );
 }

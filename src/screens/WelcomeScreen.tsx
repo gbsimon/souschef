@@ -2,28 +2,31 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/AuthNavigator';
+import { useTranslation } from '../i18n/useTranslation';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
 
 export default function WelcomeScreen({ navigation }: Props) {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Nori</Text>
-      <Text style={styles.subtitle}>Your cozy cooking assistant</Text>
+      <Text style={styles.title}>{t.auth.welcomeTitle}</Text>
+      <Text style={styles.subtitle}>{t.auth.welcomeSubtitle}</Text>
       
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, styles.primaryButton]}
           onPress={() => navigation.navigate('SignUp')}
         >
-          <Text style={styles.primaryButtonText}>Sign Up</Text>
+          <Text style={styles.primaryButtonText}>{t.auth.signUp}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity
           style={[styles.button, styles.secondaryButton]}
           onPress={() => navigation.navigate('Login')}
         >
-          <Text style={styles.secondaryButtonText}>Log In</Text>
+          <Text style={styles.secondaryButtonText}>{t.auth.logIn}</Text>
         </TouchableOpacity>
       </View>
     </View>

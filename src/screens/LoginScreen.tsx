@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityInd
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/AuthNavigator';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../i18n/useTranslation';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
@@ -11,10 +12,11 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert(t.alerts.error, t.auth.fillAllFields);
       return;
     }
 
@@ -23,7 +25,7 @@ export default function LoginScreen({ navigation }: Props) {
       await login({ email: email.trim(), password });
       // Navigation will be handled by AuthNavigator when auth state changes
     } catch (error) {
-      Alert.alert('Error', 'Failed to log in. Please check your credentials.');
+      Alert.alert(t.alerts.error, t.auth.logInError);
       console.error('Login error:', error);
     } finally {
       setIsLoading(false);
@@ -32,13 +34,13 @@ export default function LoginScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome Back</Text>
-      <Text style={styles.subtitle}>Log in to continue</Text>
+      <Text style={styles.title}>{t.auth.welcomeBack}</Text>
+      <Text style={styles.subtitle}>{t.auth.logInSubtitle}</Text>
 
       <View style={styles.form}>
         <TextInput
           style={styles.input}
-          placeholder="Email"
+          placeholder={t.auth.emailPlaceholder}
           placeholderTextColor="#999"
           value={email}
           onChangeText={setEmail}
@@ -50,7 +52,7 @@ export default function LoginScreen({ navigation }: Props) {
 
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder={t.auth.passwordPlaceholder}
           placeholderTextColor="#999"
           value={password}
           onChangeText={setPassword}
@@ -68,7 +70,7 @@ export default function LoginScreen({ navigation }: Props) {
           {isLoading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Log In</Text>
+            <Text style={styles.buttonText}>{t.auth.logIn}</Text>
           )}
         </TouchableOpacity>
 
@@ -78,7 +80,7 @@ export default function LoginScreen({ navigation }: Props) {
           disabled={isLoading}
         >
           <Text style={styles.linkText}>
-            Don't have an account? Sign up
+            {t.auth.noAccount}
           </Text>
         </TouchableOpacity>
       </View>

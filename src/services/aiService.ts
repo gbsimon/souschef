@@ -6,61 +6,7 @@
 import { Recipe, RecipeIngredient, RecipeStep } from "../types/recipe"
 import * as userDataService from "./userDataService"
 import env from "../config/env"
-
-/**
- * System prompt for Nori
- * Aligned with PRD: warm, friendly, concise, asks max 2 follow-up questions
- */
-function getNoriSystemPrompt(followUpCount: number = 0, starchAsked: boolean = false): string {
-	const followUpContext = followUpCount === 0 ? "This is the first interaction. You may ask up to 2 follow-up questions if needed." : followUpCount === 1 ? "You have asked 1 follow-up question. You may ask ONE more question maximum, then you MUST provide recipes." : "You have already asked 2 follow-up questions. You MUST provide recipes now - do NOT ask any more questions."
-
-	const starchContext = !starchAsked ? "IMPORTANT: If the user hasn't mentioned a starch side (rice/potatoes/pasta), you MUST ask about it in your follow-up questions or include it when providing recipes." : "The user has already been asked about starch preferences."
-
-	return `You are Nori, a cozy, voice-first cooking assistant that helps people cook with what they have.
-
-Your personality:
-- Warm, friendly, and concise
-- Ask targeted follow-ups; avoid long interrogations
-- Keep conversations short and helpful (STRICT LIMIT: maximum 2 follow-up questions per interaction)
-- Questions must be short, ingredient-focused, and help you provide better recipes
-
-Follow-up question rules:
-${followUpContext}
-${starchContext}
-
-Your approach:
-- Use pantry essentials by default; propose missing items only with user consent
-- Allergies are hard filters - NEVER suggest recipes with allergens
-- Preferences can suggest substitutions (e.g., "use olive oil instead of butter")
-- Suggest 3-5 viable recipes from minimal input
-
-When responding:
-- Be conversational and natural
-- If you need more info, ask ONE short, ingredient-focused question (max 2 total)
-- When ready, provide 3-5 recipe suggestions
-
-IMPORTANT: When providing recipes, format them as a JSON array at the end of your response:
-\`\`\`json
-[
-  {
-    "title": "Recipe Name",
-    "description": "Brief description",
-    "prepTime": 10,
-    "cookTime": 20,
-    "totalTime": 30,
-    "servings": 4,
-    "ingredients": [
-      {"name": "ingredient name", "amount": 1, "unit": "cup"}
-    ],
-    "steps": [
-      {"order": 1, "instruction": "Step description"}
-    ]
-  }
-]
-\`\`\`
-
-Always filter out allergens completely. For preferences, suggest substitutions in the recipe steps.`
-}
+import { getNoriSystemPrompt } from "../config/noriConfig"
 
 /**
  * Tool definitions for OpenAI function calling
@@ -203,6 +149,12 @@ function cleanTextResponse(content: string): string {
 		return "Here are some great recipe suggestions for you!"
 	}
 
+	// Remove common redundant phrases that might appear after JSON removal
+	cleaned = cleaned
+		.replace(/^here are \d+ recipe suggestions?:?\s*/gi, "")
+		.replace(/^recipe suggestions?:?\s*/gi, "")
+		.trim()
+
 	return cleaned
 }
 
@@ -272,6 +224,124 @@ function parseRecipeResponse(content: string): Recipe[] {
 		// Fallback to text parsing - don't throw, just return empty or parsed text
 		return parseTextRecipes(content)
 	}
+}
+
+/**
+ * Check if a recipe contains any allergens from the user's allergy list
+ */
+function containsAllergen(recipe: Recipe, userAllergies: string[]): boolean {
+	if (!userAllergies || userAllergies.length === 0) {
+		return false
+	}
+
+	// Normalize allergy names for comparison (lowercase, trim)
+	const normalizedAllergies = userAllergies.map((a) => a.toLowerCase().trim())
+
+	// Check recipe's explicit allergens list
+	if (recipe.allergens && recipe.allergens.length > 0) {
+		for (const allergen of recipe.allergens) {
+			const normalizedAllergen = allergen.toLowerCase().trim()
+			if (normalizedAllergies.some((a) => normalizedAllergen.includes(a) || a.includes(normalizedAllergen))) {
+				return true
+			}
+		}
+	}
+
+	// Check ingredient names for allergens
+	if (recipe.ingredients && recipe.ingredients.length > 0) {
+		for (const ingredient of recipe.ingredients) {
+			const ingredientName = ingredient.name.toLowerCase().trim()
+			// Check if any allergy name appears in the ingredient name
+			if (normalizedAllergies.some((allergy) => ingredientName.includes(allergy) || allergy.includes(ingredientName))) {
+				return true
+			}
+		}
+	}
+
+	// Check recipe title and description for allergens (less reliable but catches some cases)
+	const recipeText = `${recipe.title} ${recipe.description || ""}`.toLowerCase()
+	if (normalizedAllergies.some((allergy) => recipeText.includes(allergy))) {
+		return true
+	}
+
+	return false
+}
+
+/**
+ * Apply preference-based substitutions to recipe steps
+ * Adds substitution notes to steps based on user preferences
+ */
+function applyPreferenceSubstitutions(recipe: Recipe, preferences: { dietaryRestrictions: string[] }): Recipe {
+	if (!preferences.dietaryRestrictions || preferences.dietaryRestrictions.length === 0) {
+		return recipe
+	}
+
+	const restrictions = preferences.dietaryRestrictions.map((r) => r.toLowerCase())
+	const updatedSteps = recipe.steps.map((step) => {
+		let instruction = step.instruction
+		const notes: string[] = []
+
+		// Common substitutions based on dietary restrictions
+		if (restrictions.includes("vegan") || restrictions.includes("dairy-free")) {
+			// Replace dairy products
+			if (instruction.toLowerCase().includes("butter")) {
+				notes.push("Use vegan butter or olive oil instead of butter")
+			}
+			if (instruction.toLowerCase().includes("milk") && !instruction.toLowerCase().includes("coconut milk")) {
+				notes.push("Use plant-based milk (almond, oat, or soy) instead of dairy milk")
+			}
+			if (instruction.toLowerCase().includes("cheese")) {
+				notes.push("Use vegan cheese or nutritional yeast instead of dairy cheese")
+			}
+			if (instruction.toLowerCase().includes("cream")) {
+				notes.push("Use coconut cream or cashew cream instead of dairy cream")
+			}
+		}
+
+		if (restrictions.includes("vegetarian") || restrictions.includes("vegan")) {
+			// Replace meat products
+			if (instruction.toLowerCase().match(/\b(chicken|beef|pork|meat|bacon|sausage)\b/)) {
+				notes.push("Use plant-based alternatives (tofu, tempeh, or seitan) instead of meat")
+			}
+		}
+
+		if (restrictions.includes("gluten-free")) {
+			// Replace gluten-containing ingredients
+			if (instruction.toLowerCase().includes("flour") && !instruction.toLowerCase().includes("gluten-free")) {
+				notes.push("Use gluten-free flour (almond, rice, or tapioca flour) instead of wheat flour")
+			}
+			if (instruction.toLowerCase().match(/\b(pasta|noodles|bread|soy sauce)\b/)) {
+				notes.push("Use gluten-free alternatives")
+			}
+		}
+
+		// Combine existing notes with new substitution notes
+		const existingNotes = step.notes ? (Array.isArray(step.notes) ? step.notes.join(". ") : step.notes) : ""
+		const substitutionNotes = notes.length > 0 ? notes.join(". ") : ""
+		const combinedNotes = [existingNotes, substitutionNotes].filter((n) => n.length > 0).join(". ") || undefined
+
+		return {
+			...step,
+			instruction,
+			notes: combinedNotes,
+		}
+	})
+
+	return {
+		...recipe,
+		steps: updatedSteps,
+	}
+}
+
+/**
+ * Filter recipes to exclude those containing user allergens
+ */
+function filterRecipesByAllergies(recipes: Recipe[], userAllergies: string[]): Recipe[] {
+	if (!userAllergies || userAllergies.length === 0) {
+		return recipes
+	}
+
+	return recipes.filter((recipe) => !containsAllergen(recipe, userAllergies))
 }
 
 /**
@@ -527,7 +597,23 @@ export async function callAIWithTools(
 			const finalMessage = followUpData.choices[0].message.content
 
 			// Parse recipes from response (before cleaning)
-			const recipes = parseRecipeResponse(finalMessage)
+			let recipes = parseRecipeResponse(finalMessage)
+
+			// Apply allergy filtering (hard filter - exclude recipes with allergens)
+			if (profile && profile.allergies.length > 0) {
+				const allergyNames = profile.allergies.map((a) => a.name)
+				const beforeCount = recipes.length
+				recipes = filterRecipesByAllergies(recipes, allergyNames)
+				const afterCount = recipes.length
+				if (beforeCount > afterCount) {
+					console.log(`[AI Service] Filtered out ${beforeCount - afterCount} recipes containing allergens`)
+				}
+			}
+
+			// Apply preference-based substitutions (soft filter - suggest replacements)
+			if (profile && profile.preferences.dietaryRestrictions.length > 0) {
+				recipes = recipes.map((recipe) => applyPreferenceSubstitutions(recipe, profile.preferences))
+			}
 
 			// Clean text response - remove JSON code blocks for user display
 			const cleanedText = cleanTextResponse(finalMessage)
@@ -547,7 +633,23 @@ export async function callAIWithTools(
 		const content = assistantMessage.content || ""
 
 		// Parse recipes from response (before cleaning)
-		const recipes = parseRecipeResponse(content)
+		let recipes = parseRecipeResponse(content)
+
+		// Apply allergy filtering (hard filter - exclude recipes with allergens)
+		if (profile && profile.allergies.length > 0) {
+			const allergyNames = profile.allergies.map((a) => a.name)
+			const beforeCount = recipes.length
+			recipes = filterRecipesByAllergies(recipes, allergyNames)
+			const afterCount = recipes.length
+			if (beforeCount > afterCount) {
+				console.log(`[AI Service] Filtered out ${beforeCount - afterCount} recipes containing allergens`)
+			}
+		}
+
+		// Apply preference-based substitutions (soft filter - suggest replacements)
+		if (profile && profile.preferences.dietaryRestrictions.length > 0) {
+			recipes = recipes.map((recipe) => applyPreferenceSubstitutions(recipe, profile.preferences))
+		}
 
 		// Clean text response - remove JSON code blocks for user display
 		const cleanedText = cleanTextResponse(content)

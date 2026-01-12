@@ -6,6 +6,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../i18n/useTranslation';
 
 interface VoiceInputButtonProps {
   isRecording: boolean;
@@ -20,6 +21,8 @@ export default function VoiceInputButton({
   onPress,
   disabled = false,
 }: VoiceInputButtonProps) {
+  const { t } = useTranslation();
+  
   return (
     <TouchableOpacity
       style={[
@@ -35,7 +38,7 @@ export default function VoiceInputButton({
         {isProcessing ? (
           <>
             <ActivityIndicator size="small" color="#fff" />
-            <Text style={styles.label}>Processing...</Text>
+            <Text style={styles.label}>{t.common.processing}</Text>
           </>
         ) : (
           <>
@@ -45,7 +48,7 @@ export default function VoiceInputButton({
               color="#fff"
             />
             <Text style={styles.label} numberOfLines={1}>
-              {isRecording ? 'Stop' : 'Speak'}
+              {isRecording ? t.home.stop : t.home.speak}
             </Text>
             {isRecording && (
               <View style={styles.recordingIndicator}>
