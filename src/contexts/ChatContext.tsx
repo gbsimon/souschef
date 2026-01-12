@@ -14,6 +14,7 @@ interface ChatContextType {
   addNoriMessage: (text: string, recipes?: Recipe[]) => string;
   setLoading: (loading: boolean) => void;
   clearMessages: () => void;
+  getConversationHistory: () => Array<{ role: 'user' | 'assistant'; content: string }>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -54,6 +55,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setMessages([]);
   }, []);
 
+  const getConversationHistory = useCallback(() => {
+    // Return last 10 messages as conversation history for AI context
+    // Map 'nori' role to 'assistant' for OpenAI API compatibility
+    return messages.slice(-10).map(msg => ({
+      role: msg.role === 'nori' ? 'assistant' : 'user',
+      content: msg.text || '',
+    }));
+  }, [messages]);
+
   return (
     <ChatContext.Provider
       value={{
@@ -63,6 +73,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         addNoriMessage,
         setLoading,
         clearMessages,
+        getConversationHistory,
       }}
     >
       {children}

@@ -14,6 +14,7 @@ interface EnvConfig {
   environment: Environment;
   apiUrl: string;
   apiKey?: string;
+  openaiApiKey?: string;
   enableAnalytics: boolean;
 }
 
@@ -32,6 +33,7 @@ export const env: EnvConfig = {
   environment: getEnvironment(),
   apiUrl: extra.apiUrl || 'http://localhost:3000',
   apiKey: extra.apiKey,
+  openaiApiKey: extra.openaiApiKey || process.env.EXPO_PUBLIC_OPENAI_API_KEY,
   enableAnalytics: extra.enableAnalytics === true || extra.enableAnalytics === 'true',
 };
 

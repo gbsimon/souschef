@@ -54,6 +54,8 @@ web-build/
 .env
 .env.local
 .env.*.local
+# Allow .env.example to be committed
+!.env.example
 
 # TypeScript
 *.tsbuildinfo

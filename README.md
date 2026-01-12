@@ -35,11 +35,22 @@ npm run android
 
 ## Environment Configuration
 
-The app supports different environments (development, staging, production). Configuration is managed through `app.json` extra field or environment variables.
+The app supports different environments (development, staging, production). 
 
-To configure:
-- Edit `app.json` extra field for default values
-- Use `.env` files for local overrides (requires `react-native-config` or similar)
+**⚠️ Required: OpenAI API Key**
+
+To use the AI features, you need to set up your OpenAI API key:
+
+1. Create a `.env` file in the root directory:
+   ```bash
+   echo "EXPO_PUBLIC_OPENAI_API_KEY=your-api-key-here" > .env
+   ```
+
+2. Get your API key from https://platform.openai.com/api-keys
+
+3. Restart the Expo dev server
+
+See [`@doc/ENV_SETUP.md`](./@doc/ENV_SETUP.md) for detailed instructions.
 
 ## Project Structure
 

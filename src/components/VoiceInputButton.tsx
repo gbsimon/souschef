@@ -33,14 +33,20 @@ export default function VoiceInputButton({
     >
       <View style={styles.content}>
         {isProcessing ? (
-          <ActivityIndicator size="large" color="#fff" />
+          <>
+            <ActivityIndicator size="small" color="#fff" />
+            <Text style={styles.label}>Processing...</Text>
+          </>
         ) : (
           <>
             <Ionicons
               name={isRecording ? 'mic' : 'mic-outline'}
-              size={32}
+              size={28}
               color="#fff"
             />
+            <Text style={styles.label} numberOfLines={1}>
+              {isRecording ? 'Stop' : 'Speak'}
+            </Text>
             {isRecording && (
               <View style={styles.recordingIndicator}>
                 <View style={styles.pulse} />
@@ -49,13 +55,6 @@ export default function VoiceInputButton({
           </>
         )}
       </View>
-      <Text style={styles.label}>
-        {isProcessing
-          ? 'Processing...'
-          : isRecording
-          ? 'Tap to stop'
-          : 'Tap to speak'}
-      </Text>
     </TouchableOpacity>
   );
 }
@@ -84,6 +83,9 @@ const styles = StyleSheet.create({
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    paddingHorizontal: 4,
   },
   recordingIndicator: {
     position: 'absolute',
@@ -102,9 +104,11 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
   label: {
-    marginTop: 8,
-    fontSize: 12,
-    color: '#666',
+    marginTop: 4,
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#fff',
     textAlign: 'center',
+    maxWidth: 70,
   },
 });

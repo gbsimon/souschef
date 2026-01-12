@@ -1,8 +1,11 @@
 /**
  * Message Service
  * Unified pipeline for sending user prompts (voice or text) to get recipe responses
- * This will integrate with AI orchestration in T3.1
+ * Integrated with AI orchestration (T3.1)
  */
+
+import { callAIWithTools, isAIServiceConfigured } from './aiService';
+import { Recipe } from '../types/recipe';
 
 export interface UserMessage {
   id: string;
@@ -16,26 +19,40 @@ export interface MessageResponse {
   success: boolean;
   messageId?: string;
   error?: string;
+  aiResponse?: {
+    text: string;
+    recipes?: Recipe[];
+  };
 }
 
 /**
- * Send a user message/prompt
- * This is a placeholder that will be integrated with AI orchestration in T3.1
+ * Send a user message/prompt and get AI response
  * 
  * @param message - The user's message text
  * @param source - Whether the message came from voice or text input
  * @param language - Language code (e.g., 'en-US', 'fr-FR')
- * @returns Response indicating success or failure
+ * @param userId - User ID for context and tool calls
+ * @param conversationHistory - Previous messages in the conversation
+ * @returns Response with AI-generated text and recipes
  */
 export async function sendUserMessage(
   message: string,
   source: 'voice' | 'text' = 'text',
-  language: string = 'en-US'
+  language: string = 'en-US',
+  userId: string,
+  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = []
 ): Promise<MessageResponse> {
   if (!message || message.trim().length === 0) {
     return {
       success: false,
       error: 'Message cannot be empty',
+    };
+  }
+
+  if (!userId) {
+    return {
+      success: false,
+      error: 'User ID is required',
     };
   }
 
@@ -51,23 +68,35 @@ export async function sendUserMessage(
 
     console.log('[MessageService] Sending user message:', userMessage);
 
-    // TODO: In T3.1, this will:
-    // 1. Call AI orchestration service
-    // 2. Handle follow-up questions
-    // 3. Return recipe results
-    // For now, we'll just log and return success
-    
-    // Placeholder: Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Check if AI service is configured
+    if (!isAIServiceConfigured()) {
+      return {
+        success: false,
+        error: 'AI service is not configured. Please set EXPO_PUBLIC_OPENAI_API_KEY.',
+      };
+    }
 
-    // In the future, this will trigger:
-    // - AI orchestration (T3.1)
-    // - Recipe generation
-    // - Chat UI updates (T2.3)
-    
+    // Call AI orchestration service
+    const aiResponse = await callAIWithTools(
+      message.trim(),
+      userId,
+      language,
+      conversationHistory
+    );
+
+    console.log('[MessageService] AI response received:', {
+      textLength: aiResponse.text.length,
+      recipeCount: aiResponse.recipes?.length || 0,
+      toolCalls: aiResponse.toolCalls?.length || 0,
+    });
+
     return {
       success: true,
       messageId: userMessage.id,
+      aiResponse: {
+        text: aiResponse.text,
+        recipes: aiResponse.recipes,
+      },
     };
   } catch (error) {
     console.error('[MessageService] Error sending message:', error);
@@ -80,10 +109,7 @@ export async function sendUserMessage(
 
 /**
  * Check if message service is ready
- * This will check for AI service availability in T3.1
  */
 export function isMessageServiceReady(): boolean {
-  // For now, always return true
-  // In T3.1, this will check if AI service is configured
-  return true;
+  return isAIServiceConfigured();
 }

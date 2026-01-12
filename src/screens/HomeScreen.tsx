@@ -7,6 +7,7 @@ import VoiceInputButton from '../components/VoiceInputButton';
 import LanguageSelector from '../components/LanguageSelector';
 import ChatView from '../components/ChatView';
 import { useChat } from '../contexts/ChatContext';
+import { useAuth } from '../contexts/AuthContext';
 import { sendUserMessage } from '../services/messageService';
 
 /**
@@ -20,12 +21,14 @@ export default function HomeScreen() {
   const [isSending, setIsSending] = useState(false);
   const insets = useSafeAreaInsets();
   
+  const { user } = useAuth();
   const {
     messages,
     isLoading,
     addUserMessage,
     addNoriMessage,
     setLoading,
+    getConversationHistory,
   } = useChat();
   
   const {
@@ -63,6 +66,11 @@ export default function HomeScreen() {
       return;
     }
 
+    if (!user) {
+      Alert.alert('Authentication Required', 'Please log in to use Nori.');
+      return;
+    }
+
     if (isSending || isLoading) {
       return; // Prevent double-sending
     }
@@ -82,27 +90,37 @@ export default function HomeScreen() {
       
       console.log('[HomeScreen] Sending message:', { messageToSend, source, language });
       
-      const response = await sendUserMessage(messageToSend, source, language);
+      // Get conversation history for AI context
+      const conversationHistory = getConversationHistory();
       
-      if (response.success) {
+      // Send message to AI service
+      const response = await sendUserMessage(
+        messageToSend,
+        source,
+        language,
+        user.id,
+        conversationHistory
+      );
+      
+      if (response.success && response.aiResponse) {
         // Clear text input after successful send
         setTextInput('');
-        console.log('[HomeScreen] Message sent successfully:', response.messageId);
+        console.log('[HomeScreen] AI response received:', {
+          textLength: response.aiResponse.text.length,
+          recipeCount: response.aiResponse.recipes?.length || 0,
+        });
         
-        // TODO: In T3.1, this will receive AI response with recipes
-        // For now, add a placeholder Nori response
-        setTimeout(() => {
-          setLoading(false);
-          addNoriMessage(
-            "I'm working on finding the perfect recipes for you! This will be connected to AI orchestration in T3.1.",
-            // recipes will be added here in T3.1
-          );
-        }, 1500);
+        // Add Nori's response to chat with recipes
+        setLoading(false);
+        addNoriMessage(
+          response.aiResponse.text,
+          response.aiResponse.recipes
+        );
       } else {
         setLoading(false);
         Alert.alert(
           'Send Failed',
-          response.error || 'Failed to send message. Please try again.',
+          response.error || 'Failed to get response from Nori. Please try again.',
           [{ text: 'OK' }]
         );
       }
@@ -111,7 +129,7 @@ export default function HomeScreen() {
       console.error('[HomeScreen] Error sending message:', error);
       Alert.alert(
         'Error',
-        'An error occurred while sending your message. Please try again.',
+        error instanceof Error ? error.message : 'An error occurred while sending your message. Please try again.',
         [{ text: 'OK' }]
       );
     } finally {

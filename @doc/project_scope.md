@@ -136,53 +136,53 @@ Tasks:
 - ✅ Language selector component created for FR/EN switching.
 - ⚠️ Note: Requires custom dev client (not Expo Go). See `@doc/NATIVE_SPEECH_SETUP.md` for setup.
 
-### T2.2 - Text input fallback
+### T2.2 - Text input fallback ✅ DONE
 
 Description: Enable typed prompts for accessibility and quiet use.
 Tasks:
 
-- Add text input field and send button.
-- Reuse the same send pipeline as voice.
+- ✅ Add text input field and send button.
+- ✅ Reuse the same send pipeline as voice.
   Acceptance:
-- Typed prompt triggers the same response flow as voice.
+- ✅ Typed prompt triggers the same response flow as voice.
 
-### T2.3 - Chat UI
+### T2.3 - Chat UI ✅ DONE
 
 Description: Build the main conversation view.
 Tasks:
 
-- Render user and Nori messages with timestamps.
-- Render recipe cards (title, short summary, time).
-- Provide loading indicator during AI response.
+- ✅ Render user and Nori messages with timestamps.
+- ✅ Render recipe cards (title, short summary, time).
+- ✅ Provide loading indicator during AI response.
   Acceptance:
-- Chat view displays conversation and recipe cards.
-- Loading state is visible between prompt and reply.
+- ✅ Chat view displays conversation and recipe cards.
+- ✅ Loading state is visible between prompt and reply.
 
 ## Epic 3 - AI Orchestration
 
-### T3.1 - Prompting + tool calling layer
+### T3.1 - Prompting + tool calling layer ✅ DONE
 
 Description: Orchestrate AI responses and structured tool calls.
 Tasks:
 
-- Create system prompt aligned with `@doc/AGENTS.md`.
-- Implement tool calls: get_pantry, update_pantry, get_preferences.
-- Implement recipe generation response parser.
+- ✅ Create system prompt aligned with `@doc/AGENTS.md`.
+- ✅ Implement tool calls: get_pantry, update_pantry, get_preferences.
+- ✅ Implement recipe generation response parser.
   Acceptance:
-- AI uses tool calls to retrieve pantry and preferences.
-- Structured recipe output is parsed and rendered.
+- ✅ AI uses tool calls to retrieve pantry and preferences.
+- ✅ Structured recipe output is parsed and rendered.
 
-### T3.2 - Follow-up question logic
+### T3.2 - Follow-up question logic ✅ DONE
 
 Description: Limit and shape follow-up questions.
 Tasks:
 
-- Add logic to allow up to two follow-up questions.
-- Ensure questions are short and ingredient-focused.
-- Always ask if a starch side is desired (rice/potatoes/pasta).
+- ✅ Add logic to allow up to two follow-up questions.
+- ✅ Ensure questions are short and ingredient-focused.
+- ✅ Always ask if a starch side is desired (rice/potatoes/pasta).
   Acceptance:
-- No more than two follow-up questions per interaction.
-- Starch question is consistently asked.
+- ✅ No more than two follow-up questions per interaction.
+- ✅ Starch question is consistently asked.
 
 ### T3.3 - Allergy filtering + preferences
 
