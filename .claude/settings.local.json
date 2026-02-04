@@ -3,7 +3,13 @@
     "allow": [
       "Bash(ls:*)",
       "Bash(osascript:*)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(PROJECT_DIR=\"/Users/simongauthier/Local Sites/_Custom Apps/souschef/ios/Pods\" CONFIGURATION_BUILD_DIR=\"/tmp/test_build\" BUNDLE_FORMAT=\"shallow\" bash -x:*)",
+      "Bash(npx expo:*)",
+      "Bash(xcrun xctrace:*)",
+      "Bash(xcrun devicectl device install app:*)",
+      "Bash(xcrun devicectl:*)"
     ]
   }
 }
